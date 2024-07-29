@@ -9,30 +9,30 @@ namespace minimalAPIMongo.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Produces("application/json")]
-    public class ProductController : ControllerBase
+    public class OrderController : ControllerBase
     {
-        private readonly IMongoCollection<Product> _product;
+        private readonly IMongoCollection<Order> _order;
 
-        public ProductController(MongoDbService mongoDbService)
+        public OrderController(MongoDbService mongoDbService)
         {
-            _product = mongoDbService.GetDatabase.GetCollection<Product>("product");
+            _order = mongoDbService.GetDatabase.GetCollection<Order>("order");
         }
 
-        private FilterDefinition<Product> FindById(string id)
+        private FilterDefinition<Order> FindById(string id)
         {
-            return Builders<Product>.Filter.Eq(m => m.Id, id);
+            return Builders<Order>.Filter.Eq(m => m.Id, id);
         }
-    
+
 
 
 
         [HttpGet]
-        public async Task<ActionResult<List<Product>>> Get()
+        public async Task<ActionResult<List<Order>>> Get()
         {
             try
             {
-                var products = await _product.Find(FilterDefinition<Product>.Empty).ToListAsync();
-                return Ok(products);
+                var orders = await _order.Find(FilterDefinition<Order>.Empty).ToListAsync();
+                return Ok(orders    );
             }
 
             catch (Exception e)
@@ -40,16 +40,16 @@ namespace minimalAPIMongo.Controllers
                 return BadRequest(e.Message);
             }
         }
-        
 
-        
+
+
         [HttpPost]
-        public async Task<ActionResult> Post(Product product)
+        public async Task<ActionResult> Post(Order Order)
         {
             try
             {
-                await _product!.InsertOneAsync(product);
-                return StatusCode(201, product);
+                await _order!.InsertOneAsync(Order);
+                return StatusCode(201, Order);
 
             }
             catch (Exception e)
@@ -60,12 +60,12 @@ namespace minimalAPIMongo.Controllers
 
 
         [HttpGet("GetById")]
-        public Task<Product> GetOne(string id)
+        public Task<Order> GetOne(string id)
         {
             try
             {
                 var filter = FindById(id);
-                return _product
+                return _order
                         .Find(filter)
                         .FirstOrDefaultAsync();
             }
@@ -81,23 +81,23 @@ namespace minimalAPIMongo.Controllers
         public async Task<bool> Delete(string id)
         {
             var filter = FindById(id);
-            DeleteResult deleteResult = await _product.DeleteOneAsync(filter);
+            DeleteResult deleteResult = await _order.DeleteOneAsync(filter);
             return deleteResult.IsAcknowledged
             && deleteResult.DeletedCount > 0;
         }
 
         // Put - Alterar todos os atributos do obj ( Deve preencher todos os atributos da requisicao ). / Patch - Atualizar um atributo especifico do obj ( Deve preencher apenas uma tributo da requsicao ).
         [HttpPut]
-      
-        public async Task<bool> Update(Product product)
+
+        public async Task<bool> Update(Order Order)
         {
             try
             {
                 ReplaceOneResult updateResult =
-               await _product
+               await _order
                        .ReplaceOneAsync(
-                           filter: g => g.Id == product.Id,
-                           replacement: product);
+                           filter: g => g.Id == Order.Id,
+                           replacement: Order);
                 return updateResult.IsAcknowledged
                         && updateResult.ModifiedCount > 0;
             }
@@ -107,5 +107,8 @@ namespace minimalAPIMongo.Controllers
                 throw;
             }
         }
+
+
+
     }
 }

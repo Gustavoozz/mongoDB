@@ -9,30 +9,30 @@ namespace minimalAPIMongo.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Produces("application/json")]
-    public class ProductController : ControllerBase
+    public class UserController : ControllerBase
     {
-        private readonly IMongoCollection<Product> _product;
+        private readonly IMongoCollection<User> _user;
 
-        public ProductController(MongoDbService mongoDbService)
+        public UserController(MongoDbService mongoDbService)
         {
-            _product = mongoDbService.GetDatabase.GetCollection<Product>("product");
+            _user = mongoDbService.GetDatabase.GetCollection<User>("user");
         }
 
-        private FilterDefinition<Product> FindById(string id)
+        private FilterDefinition<User> FindById(string id)
         {
-            return Builders<Product>.Filter.Eq(m => m.Id, id);
+            return Builders<User>.Filter.Eq(m => m.Id, id);
         }
-    
+
 
 
 
         [HttpGet]
-        public async Task<ActionResult<List<Product>>> Get()
+        public async Task<ActionResult<List<User>>> Get()
         {
             try
             {
-                var products = await _product.Find(FilterDefinition<Product>.Empty).ToListAsync();
-                return Ok(products);
+                var users = await _user.Find(FilterDefinition<User>.Empty).ToListAsync();
+                return Ok(users);
             }
 
             catch (Exception e)
@@ -40,16 +40,16 @@ namespace minimalAPIMongo.Controllers
                 return BadRequest(e.Message);
             }
         }
-        
 
-        
+
+
         [HttpPost]
-        public async Task<ActionResult> Post(Product product)
+        public async Task<ActionResult> Post(User user)
         {
             try
             {
-                await _product!.InsertOneAsync(product);
-                return StatusCode(201, product);
+                await _user!.InsertOneAsync(user);
+                return StatusCode(201, user);
 
             }
             catch (Exception e)
@@ -60,12 +60,12 @@ namespace minimalAPIMongo.Controllers
 
 
         [HttpGet("GetById")]
-        public Task<Product> GetOne(string id)
+        public Task<User> GetOne(string id)
         {
             try
             {
                 var filter = FindById(id);
-                return _product
+                return _user
                         .Find(filter)
                         .FirstOrDefaultAsync();
             }
@@ -81,23 +81,23 @@ namespace minimalAPIMongo.Controllers
         public async Task<bool> Delete(string id)
         {
             var filter = FindById(id);
-            DeleteResult deleteResult = await _product.DeleteOneAsync(filter);
+            DeleteResult deleteResult = await _user.DeleteOneAsync(filter);
             return deleteResult.IsAcknowledged
             && deleteResult.DeletedCount > 0;
         }
 
         // Put - Alterar todos os atributos do obj ( Deve preencher todos os atributos da requisicao ). / Patch - Atualizar um atributo especifico do obj ( Deve preencher apenas uma tributo da requsicao ).
         [HttpPut]
-      
-        public async Task<bool> Update(Product product)
+
+        public async Task<bool> Update(User user)
         {
             try
             {
                 ReplaceOneResult updateResult =
-               await _product
+               await _user
                        .ReplaceOneAsync(
-                           filter: g => g.Id == product.Id,
-                           replacement: product);
+                           filter: g => g.Id == user.Id,
+                           replacement: user);
                 return updateResult.IsAcknowledged
                         && updateResult.ModifiedCount > 0;
             }
@@ -109,3 +109,5 @@ namespace minimalAPIMongo.Controllers
         }
     }
 }
+
+

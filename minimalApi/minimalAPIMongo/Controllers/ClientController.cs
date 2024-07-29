@@ -9,30 +9,28 @@ namespace minimalAPIMongo.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Produces("application/json")]
-    public class ProductController : ControllerBase
+    public class ClientController : ControllerBase
     {
-        private readonly IMongoCollection<Product> _product;
+        private readonly IMongoCollection<Client> _client;
 
-        public ProductController(MongoDbService mongoDbService)
+        public ClientController(MongoDbService mongoDbService)
         {
-            _product = mongoDbService.GetDatabase.GetCollection<Product>("product");
+            _client = mongoDbService.GetDatabase.GetCollection<Client>("client");
         }
 
-        private FilterDefinition<Product> FindById(string id)
+        private FilterDefinition<Client> FindById(string id)
         {
-            return Builders<Product>.Filter.Eq(m => m.Id, id);
+            return Builders<Client>.Filter.Eq(m => m.Id, id);
         }
-    
-
 
 
         [HttpGet]
-        public async Task<ActionResult<List<Product>>> Get()
+        public async Task<ActionResult<List<Client>>> Get()
         {
             try
             {
-                var products = await _product.Find(FilterDefinition<Product>.Empty).ToListAsync();
-                return Ok(products);
+                var clients = await _client.Find(FilterDefinition<Client>.Empty).ToListAsync();
+                return Ok(clients);
             }
 
             catch (Exception e)
@@ -40,16 +38,16 @@ namespace minimalAPIMongo.Controllers
                 return BadRequest(e.Message);
             }
         }
-        
 
-        
+
+
         [HttpPost]
-        public async Task<ActionResult> Post(Product product)
+        public async Task<ActionResult> Post(Client client)
         {
             try
             {
-                await _product!.InsertOneAsync(product);
-                return StatusCode(201, product);
+                await _client!.InsertOneAsync(client);
+                return StatusCode(201, client);
 
             }
             catch (Exception e)
@@ -60,12 +58,12 @@ namespace minimalAPIMongo.Controllers
 
 
         [HttpGet("GetById")]
-        public Task<Product> GetOne(string id)
+        public Task<Client> GetOne(string id)
         {
             try
             {
                 var filter = FindById(id);
-                return _product
+                return _client
                         .Find(filter)
                         .FirstOrDefaultAsync();
             }
@@ -80,28 +78,37 @@ namespace minimalAPIMongo.Controllers
         [HttpDelete]
         public async Task<bool> Delete(string id)
         {
+            try
+            {
             var filter = FindById(id);
-            DeleteResult deleteResult = await _product.DeleteOneAsync(filter);
-            return deleteResult.IsAcknowledged
-            && deleteResult.DeletedCount > 0;
+            DeleteResult deleteResult = await _client.DeleteOneAsync(filter);
+            return (deleteResult.IsAcknowledged
+            && deleteResult.DeletedCount > 0);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+           
         }
 
         // Put - Alterar todos os atributos do obj ( Deve preencher todos os atributos da requisicao ). / Patch - Atualizar um atributo especifico do obj ( Deve preencher apenas uma tributo da requsicao ).
         [HttpPut]
-      
-        public async Task<bool> Update(Product product)
+
+        public async Task<bool> Update(Client client)
         {
             try
             {
                 ReplaceOneResult updateResult =
-               await _product
+               await _client
                        .ReplaceOneAsync(
-                           filter: g => g.Id == product.Id,
-                           replacement: product);
+                           filter: g => g.Id == client.Id,
+                           replacement: client);
                 return updateResult.IsAcknowledged
                         && updateResult.ModifiedCount > 0;
             }
-            catch (Exception)
+            catch (Exception)   
             {
 
                 throw;

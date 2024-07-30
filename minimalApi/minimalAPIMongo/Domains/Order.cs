@@ -13,7 +13,7 @@ namespace minimalAPIMongo.Domains
         public DateTime? Date { get; set; }
 
         [BsonElement("status")]
-        public string? Status { get; set; }
+        public bool? Status { get; set; }
 
         [BsonElement("product")]
         public List <Product> Products { get; set; }

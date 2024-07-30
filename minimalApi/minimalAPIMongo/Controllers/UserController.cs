@@ -78,12 +78,20 @@ namespace minimalAPIMongo.Controllers
 
 
         [HttpDelete]
-        public async Task<bool> Delete(string id)
+        public async Task<ActionResult<bool>> Delete(string id)
         {
+            try
+            {
             var filter = FindById(id);
             DeleteResult deleteResult = await _user.DeleteOneAsync(filter);
             return deleteResult.IsAcknowledged
             && deleteResult.DeletedCount > 0;
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            
         }
 
         // Put - Alterar todos os atributos do obj ( Deve preencher todos os atributos da requisicao ). / Patch - Atualizar um atributo especifico do obj ( Deve preencher apenas uma tributo da requsicao ).

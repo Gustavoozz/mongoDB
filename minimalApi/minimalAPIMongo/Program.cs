@@ -30,7 +30,7 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "API Minimal with MongoDb",
+        Title = "Product Minimal API with MongoDB",
         Description = "Backend API",
         Contact = new OpenApiContact
         {

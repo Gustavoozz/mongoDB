@@ -78,33 +78,40 @@ namespace minimalAPIMongo.Controllers
 
 
         [HttpDelete]
-        public async Task<bool> Delete(string id)
+        public async Task<ActionResult<bool>> Delete(string id)
         {
+            try
+            {
             var filter = FindById(id);
             DeleteResult deleteResult = await _product.DeleteOneAsync(filter);
-            return deleteResult.IsAcknowledged
-            && deleteResult.DeletedCount > 0;
+            return Ok(deleteResult.IsAcknowledged
+            && deleteResult.DeletedCount > 0);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            
         }
 
         // Put - Alterar todos os atributos do obj ( Deve preencher todos os atributos da requisicao ). / Patch - Atualizar um atributo especifico do obj ( Deve preencher apenas uma tributo da requsicao ).
         [HttpPut]
       
-        public async Task<bool> Update(Product product)
+        public async Task<ActionResult<bool>> Update(Product product)
         {
             try
             {
-                ReplaceOneResult updateResult =
+               ReplaceOneResult updateResult =
                await _product
                        .ReplaceOneAsync(
                            filter: g => g.Id == product.Id,
                            replacement: product);
-                return updateResult.IsAcknowledged
-                        && updateResult.ModifiedCount > 0;
+                return Ok(updateResult.IsAcknowledged
+                        && updateResult.ModifiedCount > 0);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                return BadRequest(e.Message);
             }
         }
     }

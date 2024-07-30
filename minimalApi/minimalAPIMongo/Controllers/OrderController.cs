@@ -12,10 +12,12 @@ namespace minimalAPIMongo.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IMongoCollection<Order> _order;
+        private readonly IMongoCollection<Product> _product;
 
         public OrderController(MongoDbService mongoDbService)
         {
             _order = mongoDbService.GetDatabase.GetCollection<Order>("order");
+            _product = mongoDbService.GetDatabase.GetCollection<Product>("product");
         }
 
         private FilterDefinition<Order> FindById(string id)
@@ -32,7 +34,7 @@ namespace minimalAPIMongo.Controllers
             try
             {
                 var orders = await _order.Find(FilterDefinition<Order>.Empty).ToListAsync();
-                return Ok(orders    );
+                return Ok(orders);
             }
 
             catch (Exception e)
@@ -78,18 +80,27 @@ namespace minimalAPIMongo.Controllers
 
 
         [HttpDelete]
-        public async Task<bool> Delete(string id)
+        public async Task<ActionResult<bool>> Delete(string id)
         {
+            try
+            {
             var filter = FindById(id);
-            DeleteResult deleteResult = await _order.DeleteOneAsync(filter);
-            return deleteResult.IsAcknowledged
-            && deleteResult.DeletedCount > 0;
+                        DeleteResult deleteResult = await _order.DeleteOneAsync(filter);
+                        return Ok(deleteResult.IsAcknowledged
+                        && deleteResult.DeletedCount > 0);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+            
         }
 
         // Put - Alterar todos os atributos do obj ( Deve preencher todos os atributos da requisicao ). / Patch - Atualizar um atributo especifico do obj ( Deve preencher apenas uma tributo da requsicao ).
         [HttpPut]
 
-        public async Task<bool> Update(Order Order)
+        public async Task<ActionResult<bool>> Update(Order Order)
         {
             try
             {
@@ -98,13 +109,13 @@ namespace minimalAPIMongo.Controllers
                        .ReplaceOneAsync(
                            filter: g => g.Id == Order.Id,
                            replacement: Order);
-                return updateResult.IsAcknowledged
-                        && updateResult.ModifiedCount > 0;
+                return Ok(updateResult.IsAcknowledged
+                        && updateResult.ModifiedCount > 0);
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                return BadRequest(e.Message);
             }
         }
 
